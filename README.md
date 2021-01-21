@@ -1,10 +1,10 @@
 # Minesweeper
-#### A 2x scale replica of the original Windows Minesweeper.
-Made using python and Tkinter, the GUI, sprites and sounds match the original game exactly.
+ A 2x scale replica of the original Windows Minesweeper, made with python and tkinter and using 
+ resources from the original game.
 
-Resources from the original game were extracted using a program called ResourcesExtract.
+> _"Too many mines, not enough sweepers." - Caleb Webster_
 
-Sounds are handled by pygame.
+![Minesweeper](capture.png)
 
 Minesweeper will run no worries on python >= 3.6, I haven't tested with versions below this, 
 but given that Pillow >= 8.0 only supports >= 3.6, that's what I'm gonna go with.
@@ -37,5 +37,3 @@ Files:
 - __run.py__ - imports and runs MinesweeperApp class from minesweeper/main.py, making playing the game easier and faster.
 
 Happy sweeping.
-
-> _Too many mines, not enough sweepers. - Caleb Webster_
