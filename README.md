@@ -26,6 +26,10 @@ If you're going to download this repository to import into you're own code, down
 
 If you just want to play the game, download the entire repository and start the game using run.py
 
+Happy sweeping!
+
+Caleb Webster
+
 Files:
 - __minesweeper/best_times.csv__ - stores fastest completion times/names for beginner, intermediate, and expert levels.
 - __minesweeper/core.py - core__ Minesweeper game functionality. Keeps track of tiles, bombs, numbers, clicking and marking tiles, resetting game, winning and losing.
@@ -33,7 +37,3 @@ Files:
 - __minesweeper/main.py__ - Tkinter-based GUI Application that controls core game.
 - __minesweeper/tile.py__ - Tile class, used by core game to store information of a tile, such as number, mark, and whether or not the tile is safe.
 - __run.py__ - imports and runs MinesweeperApp class from minesweeper/main.py, making playing the game easier and faster.
-
-Happy sweeping!
-
-Caleb Webster
