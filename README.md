@@ -36,4 +36,6 @@ Files:
 - __minesweeper/tile.py__ - Tile class, used by core game to store information of a tile, such as number, mark, and whether or not the tile is safe.
 - __run.py__ - imports and runs MinesweeperApp class from minesweeper/main.py, making playing the game easier and faster.
 
+Happy sweeping.
+
 > _Too many mines, not enough sweepers. - Caleb Webster_
