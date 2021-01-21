@@ -27,15 +27,13 @@ If you're going to download this repository to import into you're own code, simp
 If you just want to play the game, download the entire repository and start the game using run.py
 
 Files:
-- minesweeper/\_\_init__.py - makes importing stuff easier: `from minesweeper import MinesweeperApp`
-- minesweeper/best_times.csv - stores fastest completion times/names for beginner, intermediate, and expert levels.
-- minesweeper/core.py - core Minesweeper game functionality. Keeps track of tiles, bombs, numbers, clicking and marking tiles, resetting game, winning and losing.
-- minesweeper/dialogs.py - custom Tkinter dialog boxes for custom difficulty, best times, player name, etc.
-- minesweeper/icon.ico - minesweeper icon.
-- minesweeper/main.py - Tkinter-based GUI Application that controls core game.
-- minesweeper/tile.py - Tile class, used by core game to store information of a tile, such as number, mark, and whether or not the tile is safe.
-- run.py - imports and runs MinesweeperApp class from minesweeper/main.py, making playing the game easier and faster.
+- __minesweeper/\_\_init\_\_.py__ - makes importing stuff easier: `from minesweeper import MinesweeperApp`
+- __minesweeper/best_times.csv__ - stores fastest completion times/names for beginner, intermediate, and expert levels.
+- __minesweeper/core.py - core__ Minesweeper game functionality. Keeps track of tiles, bombs, numbers, clicking and marking tiles, resetting game, winning and losing.
+- __minesweeper/dialogs.py__ - custom Tkinter dialog boxes for custom difficulty, best times, player name, etc.
+- __minesweeper/icon.ico__ - minesweeper icon.
+- __minesweeper/main.py__ - Tkinter-based GUI Application that controls core game.
+- __minesweeper/tile.py__ - Tile class, used by core game to store information of a tile, such as number, mark, and whether or not the tile is safe.
+- __run.py__ - imports and runs MinesweeperApp class from minesweeper/main.py, making playing the game easier and faster.
 
-> _Have fun!_
->
-> \- Caleb Webster
+> _Too many mines, not enough sweepers. - Caleb Webster_
