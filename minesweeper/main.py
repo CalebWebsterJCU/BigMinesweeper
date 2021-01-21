@@ -19,13 +19,11 @@ class MinesweeperApp:
     """Minesweeper game."""
     
     DEFAULT_LEVEL = 'expert'
-    BEST_TIMES_FILE = 'best_times.csv'
+    BEST_TIMES_FILE = 'minesweeper/best_times.csv'
     HELP_LINK = 'https://www.instructables.com/How-to-play-minesweeper/'
     
     def __init__(self):
         """Initialize core game, load images, sounds, and best times, create tkinter window and GUI."""
-        # CD into minesweeper directory
-        os.chdir('minesweeper')
         # Setup Minesweeper Core
         self.game = MineSweeper()
         self.images = {}
@@ -44,9 +42,9 @@ class MinesweeperApp:
         self.read_best_times(self.BEST_TIMES_FILE)
         # Load Sounds
         pygame.init()
-        self.sound_bomb = Sound('sounds/bomb.wav')
-        self.sound_clock = Sound('sounds/clock.wav')
-        self.sound_win = Sound('sounds/win.wav')
+        self.sound_bomb = Sound('minesweeper/sounds/bomb.wav')
+        self.sound_clock = Sound('minesweeper/sounds/clock.wav')
+        self.sound_win = Sound('minesweeper/sounds/win.wav')
         self.channel0 = Channel(0)
         self.channel1 = Channel(1)
         self.channel2 = Channel(2)
@@ -54,7 +52,7 @@ class MinesweeperApp:
         self.root = Tk()
         self.root.protocol('WM_DELETE_WINDOW', self.exit)
         self.root.resizable(False, False)
-        self.root.iconbitmap('icon.ico')
+        self.root.iconbitmap('minesweeper/icon.ico')
         self.root.title('Minesweeper')
         self.load_images(colour=True)
         self.create_menu()
@@ -546,7 +544,7 @@ class MinesweeperApp:
         prefix = 'nm' if colour else 'bw'
         keys = ['face_up', 'face_down', 'face_danger', 'face_win', 'face_loss', 'tile_up', 'tile_down', 'tile_bomb', 'tile_red', 'tile_x', 'tile_none', 'tile_flag', 'tile_question', 'tile_question_down', 'tile_0', 'tile_1', 'tile_2', 'tile_3', 'tile_4', 'tile_5', 'tile_6', 'tile_7', 'tile_8', 'clock_-', 'clock_0', 'clock_1', 'clock_2', 'clock_3', 'clock_4', 'clock_5', 'clock_6', 'clock_7', 'clock_8', 'clock_9']
         for key in keys:
-            self.images[key] = ImageTk.PhotoImage(Img.open(f'images/{prefix}_{key}.png'))
+            self.images[key] = ImageTk.PhotoImage(Img.open(f'minesweeper/images/{prefix}_{key}.png'))
 
 
 if __name__ == '__main__':

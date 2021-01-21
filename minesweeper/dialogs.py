@@ -2,6 +2,8 @@ from tkinter import Toplevel, Label, Button, Entry, Frame, LEFT, RIGHT, SOLID, W
 from tkinter.simpledialog import Dialog
 from webbrowser import open as webb_open
 
+ICON_FILE = 'minesweeper/icon.ico'
+
 
 class CustomDialog(Dialog):
     
@@ -385,16 +387,16 @@ def ask_custom_difficulty(root, default_values):
     height = default_values['rows']
     width = default_values['columns']
     mines = default_values['bombs']
-    return CustomDialog(parent=root, title='Custom Field', icon='icon.ico', i_h=height, i_w=width, i_m=mines).result
+    return CustomDialog(parent=root, title='Custom Field', icon=ICON_FILE, i_h=height, i_w=width, i_m=mines).result
 
 
 def ask_fastest_name(root, level):
-    return NameDialog(parent=root, title='Fastest Time', icon='icon.ico', level=level).result
+    return NameDialog(parent=root, title='Fastest Time', icon=ICON_FILE, level=level).result
 
 
 def ask_should_reset(root, scores):
-    return ScoresDialog(parent=root, title='Fastest Mine Sweepers', icon='icon.ico', scores=scores).result
+    return ScoresDialog(parent=root, title='Fastest Mine Sweepers', icon=ICON_FILE, scores=scores).result
 
 
 def show_about_game(root):
-    return AboutDialog(parent=root, title='About Minesweeper', icon='icon.ico')
+    return AboutDialog(parent=root, title='About Minesweeper', icon=ICON_FILE)
