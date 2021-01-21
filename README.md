@@ -22,7 +22,7 @@ So you may have to do this:
 
 `pip install Pillow`
 
-If you're going to download this repository to import into you're own code, simply download the minesweeper folder (not root folder Minesweeper).
+If you're going to download this repository to import into you're own code, download the minesweeper folder (__not__ the root folder, Minesweeper).
 
 If you just want to play the game, download the entire repository and start the game using run.py
 
