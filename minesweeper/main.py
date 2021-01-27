@@ -14,16 +14,17 @@ from tkinter import *
 import pygame
 import os
 
+DEFAULT_LEVEL = 'expert'
+BEST_TIMES_FILE = 'best_times.csv'
+HELP_LINK = 'https://www.instructables.com/How-to-play-minesweeper/'
+
 
 class MinesweeperApp:
     """Minesweeper game."""
     
-    DEFAULT_LEVEL = 'expert'
-    BEST_TIMES_FILE = 'minesweeper/best_times.csv'
-    HELP_LINK = 'https://www.instructables.com/How-to-play-minesweeper/'
-    
     def __init__(self):
         """Initialize core game, load images, sounds, and best times, create tkinter window and GUI."""
+        os.chdir('minesweeper')
         # Setup Minesweeper Core
         self.game = MineSweeper()
         self.images = {}
@@ -37,14 +38,14 @@ class MinesweeperApp:
             'expert': {'rows': 16, 'columns': 30, 'bombs': 99},
             'custom': {'rows': 10, 'columns': 10, 'bombs': 10}
         }
-        self.current_difficulty_level = self.DEFAULT_LEVEL
+        self.current_difficulty_level = DEFAULT_LEVEL
         self.best_times = {'beginner': (999, 'Anonymous'), 'intermediate': (999, 'Anonymous'), 'expert': (999, 'Anonymous')}
-        self.read_best_times(self.BEST_TIMES_FILE)
+        self.read_best_times(BEST_TIMES_FILE)
         # Load Sounds
         pygame.init()
-        self.sound_bomb = Sound('minesweeper/sounds/bomb.wav')
-        self.sound_clock = Sound('minesweeper/sounds/clock.wav')
-        self.sound_win = Sound('minesweeper/sounds/win.wav')
+        self.sound_bomb = Sound('sounds/bomb.wav')
+        self.sound_clock = Sound('sounds/clock.wav')
+        self.sound_win = Sound('sounds/win.wav')
         self.channel0 = Channel(0)
         self.channel1 = Channel(1)
         self.channel2 = Channel(2)
@@ -52,7 +53,7 @@ class MinesweeperApp:
         self.root = Tk()
         self.root.protocol('WM_DELETE_WINDOW', self.exit)
         self.root.resizable(False, False)
-        self.root.iconbitmap('minesweeper/icon.ico')
+        self.root.iconbitmap('icon.ico')
         self.root.title('Minesweeper')
         self.load_images(colour=True)
         self.create_menu()
@@ -90,7 +91,7 @@ class MinesweeperApp:
             
     def start_game(self):
         """Initialize minesweeper game, setting difficulty level to default."""
-        self.change_difficulty(self.DEFAULT_LEVEL)
+        self.change_difficulty(DEFAULT_LEVEL)
     
     def run(self):
         """Start the Tkinter GUI."""
@@ -332,12 +333,13 @@ class MinesweeperApp:
     
     def exit(self):
         """Write best times to file and quit game."""
-        self.write_best_times(self.BEST_TIMES_FILE)
+        self.write_best_times(BEST_TIMES_FILE)
         self.root.quit()
     
-    def open_help(self):
+    @staticmethod
+    def open_help():
         """Open help link in browser."""
-        webbopen(self.HELP_LINK)
+        webbopen(HELP_LINK)
     
     def open_about_game(self):
         """Open about game dialog."""
@@ -544,7 +546,7 @@ class MinesweeperApp:
         prefix = 'nm' if colour else 'bw'
         keys = ['face_up', 'face_down', 'face_danger', 'face_win', 'face_loss', 'tile_up', 'tile_down', 'tile_bomb', 'tile_red', 'tile_x', 'tile_none', 'tile_flag', 'tile_question', 'tile_question_down', 'tile_0', 'tile_1', 'tile_2', 'tile_3', 'tile_4', 'tile_5', 'tile_6', 'tile_7', 'tile_8', 'clock_-', 'clock_0', 'clock_1', 'clock_2', 'clock_3', 'clock_4', 'clock_5', 'clock_6', 'clock_7', 'clock_8', 'clock_9']
         for key in keys:
-            self.images[key] = ImageTk.PhotoImage(Img.open(f'minesweeper/images/{prefix}_{key}.png'))
+            self.images[key] = ImageTk.PhotoImage(Img.open(f'images/{prefix}_{key}.png'))
 
 
 if __name__ == '__main__':
