@@ -144,7 +144,7 @@ class MinesweeperApp:
         self.widgets['bottom_frame'] = bottom_frame
         
         self.create_buttons(remove=remove_buttons)
-        self.click_buttons()
+        self.click_buttons(all_bombs=self.game.game_is_lost())
         self.update_unmarked_bombs()
         self.update_time()
         
@@ -229,7 +229,7 @@ class MinesweeperApp:
         
         for tile in self.game.tiles.values():
             
-            button = Label(button_container, bd=0, image=self.images['tile_up'])
+            button = Label(button_container, bd=0, image=self.images[f'tile_{tile.mark}'])
             self.widgets['buttons'].append(button)
             
             button.tile = tile
@@ -425,7 +425,7 @@ class MinesweeperApp:
                         time.after(0, self.tick)
                     self.click_button(button)
             else:
-                button.configure(image=self.images['tile_up'])
+                button.configure(image=self.images[f'tile_{tile.mark}'])
     
     def button_r_click(self, event):
         """RMB click event on tile button to trigger button mark."""
