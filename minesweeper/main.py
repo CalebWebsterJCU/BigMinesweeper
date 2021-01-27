@@ -16,14 +16,121 @@ import os
 
 DEFAULT_LEVEL = 'expert'
 BEST_TIMES_FILE = 'best_times.csv'
-HELP_LINK = 'https://www.instructables.com/How-to-play-minesweeper/'
+HELP_LINK = 'https://www.instructables.com/How-to-play-minesweeper'
 
 
 class MinesweeperApp:
-    """Minesweeper game."""
+    """
+    a class to store methods, images, and sounds for Minesweeper game.
+    
+    Instance Attributes:
+        game : Minesweeper object
+            core game object to manage back end functions
+        images : dict
+            stores loaded image (.png) files
+        widgets : dict
+            stores Tkinter widgets, mapping names to objects
+        menu_vars : dict
+            stores statuses of top menu checkboxes
+        is_frozen : bool
+            whether or not the game is frozen
+        first_btn_clicked : bool
+            whether or not the first tile button has been clicked
+        difficulty_levels : dict
+            stores rows, columns, and bombs for different difficulties
+        current_difficulty_level : str
+            the game's current difficulty level
+        best_times : dict
+            stores fastest time and name for each difficulty level
+        sounds : dict
+            stores loaded sound (.wav) files
+        channels : dict
+            stores sound channels, one for each sound
+        root : Tk object
+            base Tkinter window on which to build GUI
+    
+    Methods:
+        read_best_times(filename):
+            Read best times from file and return a dict.
+        write_best_times(filename, best_times):
+            Write best times to a file
+        sound_is_on(self):
+            Return true if game sound is on, otherwise return false.
+        q_marks_are_on(self):
+            Return true if "?" marks are on, otherwise return false.
+        colour_is_on(self):
+            Return true if colour is on, otherwise return false.
+        start_game(self):
+            Initialize game, setting difficulty level to default.
+        run(self):
+            Start the Tkinter GUI.
+        create_ui(self, remove=False):
+            Create the main GUI widgets.
+        create_menu(self):
+            Create the Tkinter window menu.
+        create_buttons(self, remove=False):
+            Create tile button for each tile in core game.
+        handle_key_press(self, event):
+            Handle key presses.
+        assemble_number_images(self, num):
+            Turn an integer string into a list of number images.
+        update_unmarked_bombs(self):
+            Update unmarked bombs counter with number from core game.
+        update_time(self):
+            Update time counter with number from core game.
+        change_difficulty(self, difficulty):
+            Change difficulty level of core game.
+        set_custom_difficulty(self):
+            Get rows, columns, and bombs from custom difficulty dialog.
+        show_best_times(self):
+            Open best times dialog.
+        show_best_times(self):
+            Open best times dialog.
+        exit(self):
+            Write best times to file and quit game.
+        open_help():
+            Open help link in browser.
+        open_about_game(self):
+            Open about game dialog.
+        tick(self):
+            Advance game time.
+        l_hold(self, event):
+            Trigger surprised face upon holding down LMB.
+        l_release(self, event):
+            Trigger up face button upon releasing LMB.
+        face_button_l_hold(self, event):
+            Trigger down face upon holding down LMB on face button.
+        face_button_l_release(self, event):
+            Reset game upon releasing LMB on face button.
+        button_l_hold(self, event):
+            Trigger down tile upon holding LMB on tile button.
+        button_l_release(self, event):
+            Click tile upon releasing LMB on tile button.
+        button_r_click(self, event):
+            Mark tile upon clicking RMB on tile button.
+        click_button(self, button):
+            Click a tile button, update its image and handle win/loss.
+        freeze(self):
+            Freeze the game, disabling all buttons and stopping time.
+        unfreeze(self):
+            Unfreeze game, re-enabling all buttons.
+        auto_click_buttons(self, red=None, all_bombs=False):
+            Update all buttons whose tiles were clicked automatically.
+        mark_button(self, button):
+            Mark a tile, alternating between flag, question, and none.
+        reset_game(self):
+            Reset core game and GUI buttons.
+        toggle_colour(self):
+            Switch between colour and black-and-white images.
+        toggle_q_marks(self):
+            Clear all tiles marked with "?".
+        load_images(self, colour):
+            Load all images, creating and storing Tk PhotoImage objects.
+        
+    """
     
     def __init__(self):
-        """Initialize core game, load images, sounds, and best times, create tkinter window and GUI."""
+        """Initialize core game, load resources, create tkinter GUI."""
         os.chdir('minesweeper')
         # Setup Minesweeper Core
         self.game = MineSweeper()
@@ -38,17 +145,16 @@ class MinesweeperApp:
             'expert': {'rows': 16, 'columns': 30, 'bombs': 99},
             'custom': {'rows': 10, 'columns': 10, 'bombs': 10}
         }
-        self.current_difficulty_level = DEFAULT_LEVEL
-        self.best_times = {'beginner': (999, 'Anonymous'), 'intermediate': (999, 'Anonymous'), 'expert': (999, 'Anonymous')}
-        self.read_best_times(BEST_TIMES_FILE)
+        self.current_difficulty_level = None
+        self.best_times = self.read_best_times(BEST_TIMES_FILE)
         # Load Sounds
         pygame.init()
-        self.sound_bomb = Sound('sounds/bomb.wav')
-        self.sound_clock = Sound('sounds/clock.wav')
-        self.sound_win = Sound('sounds/win.wav')
-        self.channel0 = Channel(0)
-        self.channel1 = Channel(1)
-        self.channel2 = Channel(2)
+        self.sounds = {
+            'bomb': Sound('sounds/bomb.wav'),
+            'clock': Sound('sounds/clock.wav'),
+            'win': Sound('sounds/win.wav')
+        }
+        self.channels = {0: Channel(0), 1: Channel(1), 2: Channel(2)}
         # Initialize Tkinter Window
         self.root = Tk()
         self.root.protocol('WM_DELETE_WINDOW', self.exit)
@@ -61,20 +167,52 @@ class MinesweeperApp:
         # Start game with default settings
         self.start_game()
     
-    def read_best_times(self, filename):
-        """Read best times from file and update self.best_times."""
+    @staticmethod
+    def read_best_times(filename):
+        """
+        Read best times from file and return a dict.
+        
+        :param str filename: filename to read best times from
+        :return: best times
+        :rtype: dict
+        
+        Best times file must be in format:
+        beginner,name,time
+        intermediate,name,time
+        expert,name,time
+        
+        Dict returned is in format:
+        {
+            "beginner": (time, name)
+            "intermediate": (time, name)
+            "expert": (time, name)
+        }
+        """
+        best_times = {}
         with open(filename, 'r') as file_in:
             for line in file_in:
                 parts = line.strip().split(',')
                 level = parts[0]
                 time = int(parts[1])
                 name = parts[2]
-                self.best_times[level] = (time, name)
+                best_times[level] = (time, name)
+        return best_times
     
-    def write_best_times(self, filename):
-        """Write best times to file if time is not None."""
+    @staticmethod
+    def write_best_times(filename, best_times):
+        """
+        Write best times to a file.
+        
+        :param str filename: file to write best times to
+        :param dict best_times: best times to write
+        
+        Best times will be written in format:
+        beginner,name,time
+        intermediate,name,time
+        expert,name,time
+        """
         with open(filename, 'w') as file_out:
-            for level, (time, name) in self.best_times.items():
+            for level, (time, name) in best_times.items():
                 file_out.write(f'{level},{time},{name}\n')
     
     def sound_is_on(self):
@@ -88,9 +226,9 @@ class MinesweeperApp:
     def colour_is_on(self):
         """Return true if colour is on, otherwise return false."""
         return self.menu_vars['colour'].get() == 1
-            
+        
     def start_game(self):
-        """Initialize minesweeper game, setting difficulty level to default."""
+        """Initialize game, setting difficulty level to default."""
         self.change_difficulty(DEFAULT_LEVEL)
     
     def run(self):
@@ -99,20 +237,28 @@ class MinesweeperApp:
     
     def create_ui(self, remove=False):
         """
-        Create the semi-static widgets.
-        All widgets are contained within main_container.
-        main_container is divided into two sections, top_frame and bottom_frame.
-        :param remove: if true, remove all widgets before creating.
+        Create the main GUI widgets.
+        
+        :param bool remove: whether or not to remove widgets beforehand
+        
+        Step 1. Create the widget objects
+        Step 2. Pack them to the screen
+        Step 3. Bind press and release events
+        Step 4. Add them to self.widgets
+        Step 5. Global bindings
         """
         remove_buttons = False
         if remove:
             remove_buttons = True
             self.widgets['main_container'].pack_forget()
+            
         main_container = LabelFrame(self.root, bd=0, bg='#c0c0c0')
         top_frame = LabelFrame(main_container, bd=6, relief=SUNKEN, bg='#c0c0c0')
+        # Unmarked bombs
         unmarked_bombs = LabelFrame(top_frame, bd=3, relief=SUNKEN)
         for x in range(3):
             Label(unmarked_bombs, image=self.images['clock_0'], bd=0).grid(row=0, column=x)
+        # Face button
         if self.is_frozen:
             if self.game.game_is_won():
                 face_img = self.images['face_win']
@@ -121,33 +267,37 @@ class MinesweeperApp:
         else:
             face_img = self.images['face_up']
         face_button = Label(top_frame, bd=0, image=face_img, bg='#c0c0c0')
-        time = Label(top_frame, bd=3, relief=SUNKEN)
+        # Time
+        time = LabelFrame(top_frame, bd=3, relief=SUNKEN)
         for x in range(3):
             Label(time, image=self.images['clock_0'], bd=0).grid(row=0, column=x)
         
         bottom_frame = LabelFrame(main_container, bd=6, relief=SUNKEN, bg='#c0c0c0')
+        # Pack widgets to the screen.
         main_container.pack(expand=True, fill=BOTH)
         top_frame.pack(expand=True, fill=BOTH, padx=15, pady=(15, 0))
         unmarked_bombs.pack(side=LEFT, padx=(10, 0), pady=10)
         face_button.pack(side=LEFT, expand=True, padx=2, pady=10)
         time.pack(side=RIGHT, padx=(0, 10), pady=10)
         bottom_frame.pack(expand=True, fill=BOTH, padx=15, pady=15)
-        
+        # Bindings for face button.
         face_button.bind('<ButtonPress-1>', self.face_button_l_hold)
         face_button.bind('<ButtonRelease-1>', self.face_button_l_release)
-        
+        # Add widgets to self.widgets
         self.widgets['main_container'] = main_container
         self.widgets['top_frame'] = top_frame
         self.widgets['unmarked_bombs'] = unmarked_bombs
         self.widgets['time'] = time
         self.widgets['face_button'] = face_button
         self.widgets['bottom_frame'] = bottom_frame
-        
+        # Create tile buttons, removing if necessary, then click buttons
+        # (needed when colors have been changed during a game), then
+        # update unmarked bombs and time.
         self.create_buttons(remove=remove_buttons)
-        self.click_buttons(all_bombs=self.game.game_is_lost())
+        self.auto_click_buttons(all_bombs=self.game.game_is_lost())
         self.update_unmarked_bombs()
         self.update_time()
-        
+        # Global bindings
         self.root.bind_all('<ButtonPress-1>', self.l_hold)
         self.root.bind_all('<ButtonRelease-1>', self.l_release)
         self.root.bind_all("<Key>", self.handle_key_press)
@@ -158,8 +308,12 @@ class MinesweeperApp:
     def create_menu(self):
         """
         Create the Tkinter window menu.
+        
         Layout: Game | Help
-        Default: Marks (?) -> ON, Colour -> ON, Sound -> OFF
+        Defaults:
+            ? Marks -> ON
+            Colour -> ON
+            Sound -> OFF
         """
         # Top menu
         main_menu = Menu(self.root)
@@ -167,9 +321,9 @@ class MinesweeperApp:
         # Menu button: Game
         game_menu = Menu(main_menu, tearoff=False)
         main_menu.add_cascade(label='Game', menu=game_menu)
-        # Options
         game_menu.add_command(label=f'New {"F2":>30}', command=self.reset_game)
         game_menu.add_separator()
+        # Difficulty level variables
         b = IntVar()
         i = IntVar()
         e = IntVar()
@@ -179,6 +333,7 @@ class MinesweeperApp:
         game_menu.add_checkbutton(label='Expert', variable=e, command=lambda: self.change_difficulty('expert'))
         game_menu.add_checkbutton(label='Custom...', variable=c, command=self.set_custom_difficulty)
         game_menu.add_separator()
+        # Marks, colour and sound variables
         m = IntVar()
         cl = IntVar()
         s = IntVar()
@@ -200,6 +355,7 @@ class MinesweeperApp:
         help_menu.add_command(label='Using Help')
         help_menu.add_separator()
         help_menu.add_command(label=f'About Minesweeper... {"F4":>12}', command=self.open_about_game)
+        # Store variables for global access.
         self.menu_vars = {
             'levels': {
                 'beginner': b,
@@ -215,7 +371,8 @@ class MinesweeperApp:
     def create_buttons(self, remove=False):
         """
         Create tile button for each tile in core game.
-        :param remove: if true, remove all buttons before creating.
+        
+        :param bool remove: if true, remove all buttons before creating.
         """
         if remove:
             for button in self.widgets['buttons']:
@@ -258,10 +415,19 @@ class MinesweeperApp:
     
     def assemble_number_images(self, num):
         """
-        Return a list of numbered images corresponding to the characters
-        in a zero-filled string of a number.
-        E.G. num=3 -> [image0, image0, image3]
-        :param num: number to convert into images.
+        Turn an integer string into a list of number images.
+        
+        :param int num: number to convert into images.
+        
+        The time and unmarked bombs labels do not use text to display
+        number, rather a series of images of numbers. To determine which
+        number images to use and in what order, the num parameter is
+        first zero-filled (3 -> "003"), then an image is chosen for each
+        character.
+        "0" -> clock_0.png
+        "0" -> clock_0.png
+        "3" -> clock_3.png
+        E.G. num=-1 -> "0-1" -> [clock_0, clock_-, clock_1]
         """
         return [self.images[f'clock_{char}'] for char in f'{num:03}']
     
@@ -283,9 +449,12 @@ class MinesweeperApp:
     
     def change_difficulty(self, difficulty):
         """
-        Change difficulty level of core game, creating new tiles
-        and re-creating tile buttons.
-        :param difficulty: level name, one of: Beginner, Intermediate, Expert, Custom.
+        Change difficulty level of core game.
+        
+        :param difficulty: level name
+        
+        After changing difficulty, delete and re-create all tile buttons
+        and re-start game.
         """
         self.current_difficulty_level = difficulty
         levels = self.menu_vars['levels']
@@ -309,31 +478,40 @@ class MinesweeperApp:
     
     def set_custom_difficulty(self):
         """
-        Open custom difficulty dialog, getting rows, columns, and bombs from user.
-        If user presses OK, update custom difficulty and change game difficulty to custom.
-        If user presses cancel, reset checkboxes to previous values.
+        Get rows, columns, and bombs from custom difficulty dialog.
+        
+        If user presses OK, update custom difficulty and change game
+        difficulty to custom. If user presses cancel, reset checkboxes
+        to previous values.
         """
+        # Open dialog.
         dialog_values = dialogs.ask_custom_difficulty(self.root, self.difficulty_levels[self.current_difficulty_level])
         if dialog_values is not None:
             self.difficulty_levels['custom'] = dialog_values
             self.change_difficulty('custom')
-        # If user tried to change from another level to custom but cancelled,
-        # set custom checkbox back to 0. If user tried to change from custom
-        # to custom and but cancelled, set custom checkbox back to 1.
+        # If user tried to change from another level to custom but
+        # cancelled, set custom checkbox back to 0. If user tried to
+        # change from custom to custom and but cancelled, set custom
+        # checkbox back to 1.
         elif self.current_difficulty_level != 'custom':
             self.menu_vars['levels']['custom'].set(0)
         else:
             self.menu_vars['levels']['custom'].set(1)
     
     def show_best_times(self):
-        """Open best times dialog. If user presses Reset button, reset best times."""
+        """
+        Open best times dialog.
+        
+        If reset is pressed, reset best times.
+        """
+        # Open dialog.
         will_reset = dialogs.ask_should_reset(self.root, self.best_times)
         if will_reset:
             self.best_times = {'beginner': (999, 'Anonymous'), 'intermediate': (999, 'Anonymous'), 'expert': (999, 'Anonymous')}
     
     def exit(self):
         """Write best times to file and quit game."""
-        self.write_best_times(BEST_TIMES_FILE)
+        self.write_best_times(BEST_TIMES_FILE, self.best_times)
         self.root.quit()
     
     @staticmethod
@@ -346,20 +524,17 @@ class MinesweeperApp:
         dialogs.show_about_game(self.root)
     
     def tick(self):
-        """
-        If game is being played, increment core game time, play clock sound,
-        and update time counter.
-        """
+        """Advance game time."""
         time = self.widgets['time']
         if self.first_btn_clicked:
             if self.sound_is_on():
-                self.channel0.play(self.sound_clock)
+                self.channels[0].play(self.sounds['clock'])
             self.game.tick()
             self.update_time()
             time.after(1000, self.tick)
         
     def l_hold(self, event):
-        """Universal lms button hold event to trigger surprised face."""
+        """Trigger surprised face upon holding down LMB."""
         face_button = self.widgets['face_button']
         x = face_button.winfo_rootx()
         y = face_button.winfo_rooty()
@@ -368,22 +543,19 @@ class MinesweeperApp:
                 face_button.configure(image=self.images['face_danger'])
     
     def l_release(self, event):
-        """
-        Universal LMB release event to reset smile face and reset game
-        if face button is clicked on.
-        """
+        """Trigger up face button upon releasing LMB."""
         assert event
         face_button = self.widgets['face_button']
         if not self.is_frozen:
             face_button.configure(image=self.images['face_up'])
         
     def face_button_l_hold(self, event):
-        """LMB click/hold event on face button to trigger smile down."""
+        """Trigger down face upon holding down LMB on face button."""
         face_button = event.widget
         face_button.configure(image=self.images['face_down'])
     
     def face_button_l_release(self, event):
-        """LMB click/hold event on face button to trigger smile down."""
+        """Reset game upon releasing LMB on face button."""
         face_button = event.widget
         if self.is_frozen:
             if self.game.game_is_won():
@@ -398,7 +570,7 @@ class MinesweeperApp:
             self.reset_game()
     
     def button_l_hold(self, event):
-        """LMB click/hold event on tile button to trigger button down."""
+        """Trigger down tile upon holding LMB on tile button."""
         button = event.widget
         if not self.is_frozen and not button.is_disabled:
             if button.tile.mark == 'question':
@@ -409,9 +581,12 @@ class MinesweeperApp:
     
     def button_l_release(self, event):
         """
-        LMB release event on tile button to trigger button up or click
-        button if mouse is hovering over it. If button is the first to
-        be clicked, scatter bombs and start game timer.
+        Click tile upon releasing LMB on tile button.
+        
+        If tile is the first to be clicked, scatter bombs and avoid
+        clicked tile. This ensures that the first tile clicked will
+        never be a bomb. Clicking the first tile also starts the game
+        timer.
         """
         time = self.widgets['time']
         button = event.widget
@@ -428,15 +603,21 @@ class MinesweeperApp:
                 button.configure(image=self.images[f'tile_{tile.mark}'])
     
     def button_r_click(self, event):
-        """RMB click event on tile button to trigger button mark."""
+        """Mark tile upon clicking RMB on tile button."""
         button = event.widget
         if not self.is_frozen and not button.tile.is_clicked:
             self.mark_button(button)
     
     def click_button(self, button):
         """
-        Click on a button, disabling it to future clicks, then disable all
-        other buttons that were automatically clicked after it.
+        Click a tile button, update its image and handle win/loss.
+        
+        :param button: button to click
+        
+        If player wins, freeze the game and check for fastest time.
+        If player got a fastest time, ask for their name and overwrite
+        best_times.
+        If player loses, show all the bombs and freeze the game.
         """
         face_button = self.widgets['face_button']
         tile = button.tile
@@ -445,42 +626,45 @@ class MinesweeperApp:
         
         if self.game.game_is_won():  # Win
             if self.sound_is_on():
-                self.channel1.play(self.sound_win)
+                self.channels[1].play(self.sounds['win'])
             face_button.configure(image=self.images['face_win'])
             self.freeze()
-            # If time is fastest recorded for the difficulty level, save it.
+            # If time is fastest for the difficulty level, save it.
             if self.game.time < self.best_times[self.current_difficulty_level][0]:
                 name = dialogs.ask_fastest_name(self.root, self.current_difficulty_level)
                 self.best_times[self.current_difficulty_level] = (self.game.time, name)
         elif not tile.is_safe:  # Loss
             if self.sound_is_on():
-                self.channel2.play(self.sound_bomb)
+                self.channels[2].play(self.sounds['bomb'])
             self.game.click_all_bombs()
-            self.click_buttons(red=button, all_bombs=True)
+            self.auto_click_buttons(red=button, all_bombs=True)
             face_button.configure(image=self.images['face_loss'])
             self.freeze()
         elif multiple:  # multiple buttons were automatically clicked
-            self.click_buttons()
+            self.auto_click_buttons()
         else:  # Single button
             image = self.images[f'tile_{tile.number}']
             button.configure(image=image)
     
     def freeze(self):
-        """Disable all buttons."""
+        """Freeze the game, disabling all buttons and stopping time."""
         self.is_frozen = True
         self.first_btn_clicked = False
     
     def unfreeze(self):
-        """Enable all buttons"""
+        """Unfreeze game, re-enabling all buttons."""
         self.is_frozen = False
     
-    def click_buttons(self, red=None, all_bombs=False):
+    def auto_click_buttons(self, red=None, all_bombs=False):
         """
-        Iterate through tile buttons, updating the images of all whose tile
-        has been clicked and disabling them.
-        :param red: stores Tile. If not None, set image of this tile's button to red bomb.
-        :param all_bombs: if True, click on all bomb tiles and tiles with flag mark.
-        Set image of all mistakenly flagged safe tiles to crossed-out bomb.
+        Update all buttons whose tiles were clicked automatically.
+        
+        :param Tile red: bomb tile to mark red if game is over else None
+        :param bool all_bombs: if True, reveal all bomb tiles (game end)
+        
+        In the original Minesweeper, when a bomb is clicked, it turns
+        red and all other bombs are revealed. All incorrectly flagged
+        bombs are marked with a cross.
         """
         for button in self.widgets['buttons']:
             tile = button.tile
@@ -498,10 +682,7 @@ class MinesweeperApp:
                 button.is_disabled = True
     
     def mark_button(self, button):
-        """
-        Mark a button's tile, updating unmarked_bombs and disabling
-        the button if mark is flag.
-        """
+        """Mark a tile, alternating between flag, question, and none."""
         tile = button.tile
         self.game.mark_tile(tile)
         # If "?" marks are off, skip "?" by marking tile again.
@@ -512,10 +693,7 @@ class MinesweeperApp:
         button.is_disabled = tile.mark == 'flag'
     
     def reset_game(self):
-        """
-        Reset core game, clearing all tiles, resetting and enabling
-        all buttons.
-        """
+        """Reset core game and GUI buttons."""
         self.first_btn_clicked = False
         self.unfreeze()
         self.game.reset()
@@ -526,22 +704,34 @@ class MinesweeperApp:
             button.configure(image=self.images['tile_up'])
     
     def toggle_colour(self):
-        """Switch between colour and black-and-white images, reloading the entire UI."""
+        """
+        Switch between colour and black-and-white images.
+        
+        This requires a re-load of the entire UI.
+        """
         self.load_images(colour=self.colour_is_on())
         self.create_ui(remove=True)
     
     def toggle_q_marks(self):
-        """Find all tiles with question marks, and mark them to remove it."""
+        """
+        Clear all tiles marked with "?".
+        
+        When ? marks are turned off, unlike in the original Minesweeper,
+        the currently marked "?" tiles are reset instead of left.
+        """
         for button in self.widgets['buttons']:
             if button.tile.mark == 'question':
                 self.mark_button(button)
     
     def load_images(self, colour):
         """
-        Load all images, creating Tk PhotoImage objects. These images must
-        have a static storage method, such as dict: self.images, so that Tkinter can constantly
-        reference them, otherwise they won't be displayed.
-        :param colour: if true, load colour images, else load black-and-white images.
+        Load all images, creating and storing Tk PhotoImage objects.
+        
+        :param colour: if true, load colour images, else load b & w.
+        
+        All images must have a global storage method, e.g. self.images,
+        so that Tkinter can constantly reference them, otherwise they
+        won't be displayed.
         """
         prefix = 'nm' if colour else 'bw'
         keys = ['face_up', 'face_down', 'face_danger', 'face_win', 'face_loss', 'tile_up', 'tile_down', 'tile_bomb', 'tile_red', 'tile_x', 'tile_none', 'tile_flag', 'tile_question', 'tile_question_down', 'tile_0', 'tile_1', 'tile_2', 'tile_3', 'tile_4', 'tile_5', 'tile_6', 'tile_7', 'tile_8', 'clock_-', 'clock_0', 'clock_1', 'clock_2', 'clock_3', 'clock_4', 'clock_5', 'clock_6', 'clock_7', 'clock_8', 'clock_9']
