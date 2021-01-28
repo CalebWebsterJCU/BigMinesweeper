@@ -1,8 +1,31 @@
 """
 Minesweeper App
 2021
-A 2x scale replica of the original Windows Minesweeper.
-Github: https://www.github.com/CalebWebsterJCU/Minesweeper
+This module contains the main code for MinesweeperApp, A 2x scale
+replica of the original Windows Minesweeper, run in a TKinter window
+with images and sounds extracted from the original game.
+
+`Github <https://www.github.com/CalebWebsterJCU/Minesweeper>`_
+
+Examples:
+    Running MinesweeperApp using run.py::
+
+        $ cd Minesweeper
+        $ python run.py
+
+    Importing class from package minesweeper::
+
+        from minesweeper import MinesweeperApp
+
+        MinesweeperApp().run()
+
+Attributes:
+    DEFAULT_LEVEL (str): Default game starting difficulty
+
+    BEST_TIMES_FILE (str): Name of tile which stores best times
+
+    HELP_LINK (str): Link to Minesweeper help page
+
 """
 
 from minesweeper.core import MineSweeper
@@ -239,7 +262,7 @@ class MinesweeperApp:
         """
         Create the main GUI widgets.
         
-        :param bool remove: whether or not to remove widgets beforehand
+        :param bool remove: whether or not to remove widgets before creating
         
         Step 1. Create the widget objects
         Step 2. Pack them to the screen
@@ -419,11 +442,10 @@ class MinesweeperApp:
         
         :param int num: number to convert into images.
         
-        The time and unmarked bombs labels do not use text to display
-        number, rather a series of images of numbers. To determine which
-        number images to use and in what order, the num parameter is
-        first zero-filled (3 -> "003"), then an image is chosen for each
-        character.
+        The time and unmarked bombs labels do not use text to display number,
+        rather a series of images of numbers. To determine which number images
+        to use and in what order, the num parameter is first zero-filled
+        (3 -> "003"), then an image is chosen for each character.
         "0" -> clock_0.png
         "0" -> clock_0.png
         "3" -> clock_3.png
@@ -453,8 +475,8 @@ class MinesweeperApp:
         
         :param difficulty: level name
         
-        After changing difficulty, delete and re-create all tile buttons
-        and re-start game.
+        After changing difficulty, delete and re-create all tile buttons and
+        re-start game.
         """
         self.current_difficulty_level = difficulty
         levels = self.menu_vars['levels']
@@ -480,9 +502,8 @@ class MinesweeperApp:
         """
         Get rows, columns, and bombs from custom difficulty dialog.
         
-        If user presses OK, update custom difficulty and change game
-        difficulty to custom. If user presses cancel, reset checkboxes
-        to previous values.
+        If user presses OK, update custom difficulty and change game difficulty
+        to custom. If user presses cancel, reset checkboxes to previous values.
         """
         # Open dialog.
         dialog_values = dialogs.ask_custom_difficulty(self.root, self.difficulty_levels[self.current_difficulty_level])
@@ -583,10 +604,9 @@ class MinesweeperApp:
         """
         Click tile upon releasing LMB on tile button.
         
-        If tile is the first to be clicked, scatter bombs and avoid
-        clicked tile. This ensures that the first tile clicked will
-        never be a bomb. Clicking the first tile also starts the game
-        timer.
+        If tile is the first to be clicked, scatter bombs and avoid clicked
+        tile. This ensures that the first tile clicked will never be a bomb.
+        Clicking the first tile also starts the game timer.
         """
         time = self.widgets['time']
         button = event.widget
@@ -614,9 +634,8 @@ class MinesweeperApp:
         
         :param button: button to click
         
-        If player wins, freeze the game and check for fastest time.
-        If player got a fastest time, ask for their name and overwrite
-        best_times.
+        If player wins, freeze the game and check for fastest time. If player
+        got a fastest time, ask for their name and overwrite best_times.
         If player loses, show all the bombs and freeze the game.
         """
         face_button = self.widgets['face_button']
@@ -662,9 +681,9 @@ class MinesweeperApp:
         :param Tile red: bomb tile to mark red if game is over else None
         :param bool all_bombs: if True, reveal all bomb tiles (game end)
         
-        In the original Minesweeper, when a bomb is clicked, it turns
-        red and all other bombs are revealed. All incorrectly flagged
-        bombs are marked with a cross.
+        In the original Minesweeper, when a bomb is clicked, it turns red and
+        all other bombs are revealed. All incorrectly flagged bombs are marked
+        with a cross.
         """
         for button in self.widgets['buttons']:
             tile = button.tile
@@ -716,8 +735,8 @@ class MinesweeperApp:
         """
         Clear all tiles marked with "?".
         
-        When ? marks are turned off, unlike in the original Minesweeper,
-        the currently marked "?" tiles are reset instead of left.
+        When ? marks are turned off, unlike in the original Minesweeper, the
+        currently marked "?" tiles are reset instead of left.
         """
         for button in self.widgets['buttons']:
             if button.tile.mark == 'question':
@@ -729,9 +748,9 @@ class MinesweeperApp:
         
         :param colour: if true, load colour images, else load b & w.
         
-        All images must have a global storage method, e.g. self.images,
-        so that Tkinter can constantly reference them, otherwise they
-        won't be displayed.
+        All images must have a global storage method, e.g. self.images, so that
+        Tkinter can constantly reference them, otherwise they won't be
+        displayed.
         """
         prefix = 'nm' if colour else 'bw'
         keys = ['face_up', 'face_down', 'face_danger', 'face_win', 'face_loss', 'tile_up', 'tile_down', 'tile_bomb', 'tile_red', 'tile_x', 'tile_none', 'tile_flag', 'tile_question', 'tile_question_down', 'tile_0', 'tile_1', 'tile_2', 'tile_3', 'tile_4', 'tile_5', 'tile_6', 'tile_7', 'tile_8', 'clock_-', 'clock_0', 'clock_1', 'clock_2', 'clock_3', 'clock_4', 'clock_5', 'clock_6', 'clock_7', 'clock_8', 'clock_9']
