@@ -1,1 +1,9 @@
-{"level": "custom", "rows": 10, "columns": 10, "bombs": 50, "marks": 1, "colour": 1, "sound": 0}
+{
+    "level": "expert",
+    "rows": 16,
+    "columns": 30,
+    "bombs": 99,
+    "marks": 1,
+    "colour": 1,
+    "sound": 0
+}
