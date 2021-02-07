@@ -35,10 +35,12 @@ from PIL import ImageTk, Image as Img
 from minesweeper import dialogs
 from tkinter import *
 import pygame
+import json
 import os
 
 DEFAULT_LEVEL = 'expert'
 BEST_TIMES_FILE = 'best_times.csv'
+SETTINGS_FILE = 'settings.json'
 HELP_LINK = 'https://www.instructables.com/How-to-play-minesweeper'
 
 
@@ -169,6 +171,7 @@ class MinesweeperApp:
             'custom': {'rows': 10, 'columns': 10, 'bombs': 10}
         }
         self.current_difficulty_level = None
+        self.stored_settings = self.load_settings(SETTINGS_FILE)
         self.best_times = self.read_best_times(BEST_TIMES_FILE)
         # Load Sounds
         pygame.init()
@@ -184,11 +187,43 @@ class MinesweeperApp:
         self.root.resizable(False, False)
         self.root.iconbitmap('icon.ico')
         self.root.title('Minesweeper')
-        self.load_images(colour=True)
         self.create_menu()
+        self.load_images(colour=self.colour_is_on())
         self.create_ui()
         # Start game with default settings
         self.start_game()
+    
+    @staticmethod
+    def load_settings(filename):
+        """
+        Read saved settings from json file and return a dict.
+        
+        :param str filename: filename to read settings from
+        :return: settings
+        :rtype: dict
+        """
+        with open(filename, 'r') as file_in:
+            settings = json.loads(file_in.read().strip())
+        return settings
+    
+    def save_game_settings(self, filename):
+        """
+        Write current game settings to json file.
+        
+        :param filename: file to write settings to
+        """
+        settings = {
+            'level': self.current_difficulty_level,
+            'rows': len(self.game.rows),
+            'columns': len(self.game.columns),
+            'bombs': self.game.num_bombs,
+            'marks': self.menu_vars['marks'].get(),
+            'colour': self.menu_vars['colour'].get(),
+            'sound': self.menu_vars['sound'].get()
+        }
+
+        with open(filename, 'w') as file_out:
+            file_out.write(json.dumps(settings) + '\n')
     
     @staticmethod
     def read_best_times(filename):
@@ -251,8 +286,16 @@ class MinesweeperApp:
         return self.menu_vars['colour'].get() == 1
         
     def start_game(self):
-        """Initialize game, setting difficulty level to default."""
-        self.change_difficulty(DEFAULT_LEVEL)
+        """Initialize game with difficulty level from saved settings."""
+        if self.stored_settings['level'] == 'custom':
+            # Configure custom difficulty level.
+            rows = self.stored_settings['rows']
+            columns = self.stored_settings['columns']
+            bombs = self.stored_settings['bombs']
+            self.difficulty_levels['custom']['rows'] = rows
+            self.difficulty_levels['custom']['columns'] = columns
+            self.difficulty_levels['custom']['bombs'] = bombs
+        self.change_difficulty(self.stored_settings['level'])
     
     def run(self):
         """Start the Tkinter GUI."""
@@ -360,9 +403,9 @@ class MinesweeperApp:
         m = IntVar()
         cl = IntVar()
         s = IntVar()
-        m.set(1)
-        cl.set(1)
-        s.set(0)
+        m.set(self.stored_settings['marks'])
+        cl.set(self.stored_settings['colour'])
+        s.set(self.stored_settings['sound'])
         game_menu.add_checkbutton(label='Marks (?)', variable=m, command=self.toggle_q_marks)
         game_menu.add_checkbutton(label='Color', variable=cl, command=self.toggle_colour)
         game_menu.add_checkbutton(label='Sound', variable=s)
@@ -533,6 +576,7 @@ class MinesweeperApp:
     def exit(self):
         """Write best times to file and quit game."""
         self.write_best_times(BEST_TIMES_FILE, self.best_times)
+        self.save_game_settings(SETTINGS_FILE)
         self.root.quit()
     
     @staticmethod
