@@ -74,6 +74,10 @@ class MinesweeperApp:
             base Tkinter window on which to build GUI
     
     Methods:
+        load_settings(filename):
+            Read saved settings from json file and return a dict.
+        save_game_settings(self, filename):
+            Write current game settings to json file.
         read_best_times(filename):
             Read best times from file and return a dict.
         write_best_times(filename, best_times):
