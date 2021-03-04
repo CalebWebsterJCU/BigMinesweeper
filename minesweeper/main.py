@@ -19,13 +19,6 @@ Examples:
 
         MinesweeperApp().run()
 
-Attributes:
-    DEFAULT_LEVEL (str): Default game starting difficulty
-
-    BEST_TIMES_FILE (str): Name of tile which stores best times
-
-    HELP_LINK (str): Link to Minesweeper help page
-
 """
 
 from minesweeper.core import MineSweeper
