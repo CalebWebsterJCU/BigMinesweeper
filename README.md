@@ -1,13 +1,13 @@
-# Minesweeper
+# Big Minesweeper
 
 A 2x scale replica of the original Windows Minesweeper, made with python and tkinter and using resources from the
 original game.
 
 > _"Too many mines, not enough sweepers."_
 
-![Minesweeper](capture.png)
+![Big Minesweeper](capture.png)
 
-Minesweeper will run no worries on python >= 3.6, I haven't tested with versions below this, but given that Pillow >=
+Big Minesweeper will run no worries on python >= 3.6, I haven't tested with versions below this, but given that Pillow >=
 8.0 only supports >= 3.6, that's what I'm gonna go with.
 
 **NOTE:** To run the game, you will need the following python modules installed:
